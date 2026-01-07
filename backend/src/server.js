@@ -12,7 +12,16 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Middleware
-app.use(cors());
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+const corsOptions = allowedOrigins.length ? {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+} : {};
+app.disable('x-powered-by');
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Health check endpoint (no auth required)
