@@ -11,6 +11,12 @@ This project consists of four main services:
 - **Checkout Page** (Port 3001) - React-based hosted checkout interface
 - **PostgreSQL Database** (Port 5432) - Data persistence layer
 
+## 📑 Additional Documentation
+
+- API reference: see API_DOCUMENTATION.md
+- System overview: see ARCHITECTURE.md
+- Quick commands: see QUICKSTART.md
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -37,6 +43,29 @@ docker-compose up -d
    - **API**: http://localhost:8000
    - **Dashboard**: http://localhost:3000
    - **Checkout**: http://localhost:3001
+
+### Clean Reset and Rebuild (Docker)
+
+If you need to fully reset containers, clear Docker cache, rebuild images from scratch, and start fresh, run:
+
+```powershell
+# Stop and remove containers, networks, and volumes
+docker-compose down -v --remove-orphans
+
+# Prune caches and builder layers (cleans up disk space)
+docker system prune -af --volumes; docker builder prune -af
+
+# Rebuild images without cache
+docker-compose build --no-cache
+
+# Start services
+docker-compose up -d
+
+# Verify API health (PowerShell)
+Invoke-WebRequest -UseBasicParsing http://localhost:8000/health | Select-Object -ExpandProperty Content
+```
+
+Note for PowerShell users: `curl` is an alias for `Invoke-WebRequest`. To use real cURL, run `curl.exe` explicitly.
 
 ### Test Credentials
 
@@ -193,6 +222,14 @@ curl -X POST http://localhost:8000/api/v1/orders \
   -d '{"amount": 50000, "currency": "INR", "receipt": "test_123"}'
 ```
 
+PowerShell equivalent:
+
+```powershell
+$headers = @{ 'X-Api-Key'='key_test_abc123'; 'X-Api-Secret'='secret_test_xyz789'; 'Content-Type'='application/json' }
+$body    = '{"amount":50000,"currency":"INR","receipt":"test_123"}'
+Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/orders -Headers $headers -Body $body
+```
+
 2. **Access the checkout page:**
 ```
 http://localhost:3001/checkout?order_id=<order_id_from_step_1>
@@ -317,6 +354,16 @@ When enabled:
 - Processing delay is fixed (not random)
 - Useful for automated testing
 
+Quick usage with Docker Compose:
+
+```powershell
+$env:TEST_MODE = "true"
+$env:TEST_PAYMENT_SUCCESS = "true"   # or "false"
+$env:TEST_PROCESSING_DELAY = "1000"  # milliseconds
+docker-compose up -d --build
+Invoke-WebRequest -UseBasicParsing http://localhost:8000/health | Select-Object -ExpandProperty Content
+```
+
 ## 🐛 Troubleshooting
 
 ### Services won't start
@@ -325,6 +372,14 @@ When enabled:
 docker-compose down
 docker-compose up -d
 ```
+
+### Compose version warning
+
+If you see a warning like:
+
+> the attribute `version` is obsolete, it will be ignored
+
+This is harmless. You can ignore it or remove the top-level `version:` key from `docker-compose.yml`.
 
 ### Database connection errors
 ```bash
@@ -426,5 +481,3 @@ This is an educational project for learning purposes.
 ## 🤝 Support
 
 For issues or questions, please refer to the project documentation or contact the development team.
-#   P a y m e n t - G a t e w a y - w i t h - M u l t i - M e t h o d - P r o c e s s i n g  
- 
