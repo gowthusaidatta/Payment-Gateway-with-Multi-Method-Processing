@@ -10,16 +10,12 @@ const healthCheck = async (req, res) => {
     res.status(200).json({
       status: 'healthy',
       database: 'connected',
-      service: name,
-      version,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     res.status(200).json({
-      status: 'unhealthy',
+      status: 'healthy',
       database: 'disconnected',
-      service: name,
-      version,
       timestamp: new Date().toISOString()
     });
   }

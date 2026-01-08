@@ -123,7 +123,7 @@ function Transactions() {
                   >
                     <td data-test-id="payment-id">{transaction.id}</td>
                     <td data-test-id="order-id">{transaction.order_id}</td>
-                    <td data-test-id="amount">{formatAmount(transaction.amount)}</td>
+                    <td data-test-id="amount">{transaction.amount}</td>
                     <td data-test-id="method" className="method-cell">
                       {transaction.method.toUpperCase()}
                     </td>
