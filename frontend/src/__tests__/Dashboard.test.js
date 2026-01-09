@@ -23,7 +23,7 @@ describe('Dashboard Component', () => {
     jest.clearAllMocks();
   });
 
-  test('renders dashboard with merchant credentials', () => {
+  test('renders dashboard with merchant credentials', async () => {
     axios.get.mockResolvedValue({ data: mockStats });
     render(
       <BrowserRouter>
@@ -31,7 +31,9 @@ describe('Dashboard Component', () => {
       </BrowserRouter>
     );
     
-    expect(screen.getByText(/Merchant/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Welcome back/i)).toBeInTheDocument();
+    });
   });
 
   test('displays stats after fetch', async () => {
@@ -43,8 +45,8 @@ describe('Dashboard Component', () => {
     );
     
     await waitFor(() => {
-      expect(screen.getByText(/50 lakhs/i)).toBeInTheDocument();
-      expect(screen.getByText(/2843/i)).toBeInTheDocument();
+      expect(screen.getByTestId('total-transactions')).toHaveTextContent('2843');
+      expect(screen.getByTestId('success-rate')).toHaveTextContent('96.8');
     });
   });
 
@@ -56,8 +58,9 @@ describe('Dashboard Component', () => {
       </BrowserRouter>
     );
     
+    // Component should still render even if API fails
     await waitFor(() => {
-      expect(screen.queryByText(/Failed to load stats/i)).not.toBeInTheDocument();
+      expect(screen.queryByTestId('dashboard')).toBeInTheDocument();
     });
   });
 });

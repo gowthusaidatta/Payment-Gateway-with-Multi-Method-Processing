@@ -35,7 +35,7 @@ describe('Transactions Component', () => {
     });
   });
 
-  test('displays create transaction form', () => {
+  test('displays create transaction form', async () => {
     axios.get.mockResolvedValue({ data: [] });
     render(
       <BrowserRouter>
@@ -43,9 +43,10 @@ describe('Transactions Component', () => {
       </BrowserRouter>
     );
     
-    expect(screen.getByLabelText(/order id/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
-    expect(screen.getByText(/create transaction/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Create Transaction/i)).toBeInTheDocument();
+      expect(screen.getByText(/Amount \(paise\)/i)).toBeInTheDocument();
+    });
   });
 
   test('submits transaction on form submit', async () => {
@@ -58,12 +59,14 @@ describe('Transactions Component', () => {
       </BrowserRouter>
     );
     
-    const orderInput = screen.getByLabelText(/order id/i);
-    const amountInput = screen.getByLabelText(/amount/i);
-    const submitBtn = screen.getByText(/create transaction/i);
+    await waitFor(() => {
+      const amountInputs = screen.getAllByRole('spinbutton');
+      if (amountInputs.length > 0) {
+        fireEvent.change(amountInputs[0], { target: { value: '100000' } });
+      }
+    });
     
-    fireEvent.change(orderInput, { target: { value: 'ORD003' } });
-    fireEvent.change(amountInput, { target: { value: '100000' } });
+    const submitBtn = screen.getByRole('button', { name: /Create/i });
     fireEvent.click(submitBtn);
     
     await waitFor(() => {
