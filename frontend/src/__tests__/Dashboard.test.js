@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
-import Dashboard from '../Dashboard';
+import Dashboard from '../pages/Dashboard';
 import axios from 'axios';
 
 jest.mock('axios');

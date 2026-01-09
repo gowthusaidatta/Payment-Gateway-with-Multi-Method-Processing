@@ -43,12 +43,14 @@ public class MerchantControllerTest {
 
     @Test
     public void testMerchantLogin() throws Exception {
-        when(merchantRepository.findByApiKeyAndApiSecret("test_key", "test_secret"))
+        when(merchantRepository.findByEmail("test@example.com"))
                 .thenReturn(Optional.of(testMerchant));
 
+        String requestBody = "{\"email\": \"test@example.com\", \"password\": \"test@123\"}";
+
         mockMvc.perform(post("/api/v1/merchant/login")
-                .header("X-Api-Key", "test_key")
-                .header("X-Api-Secret", "test_secret"))
+                .contentType("application/json")
+                .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("test@example.com"));
     }
@@ -60,7 +62,8 @@ public class MerchantControllerTest {
 
         mockMvc.perform(get("/api/v1/merchant/stats")
                 .header("X-Api-Key", "test_key")
-                .header("X-Api-Secret", "test_secret"))
+                .header("X-Api-Secret", "test_secret")
+                .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total_amount").exists())
                 .andExpect(jsonPath("$.total_transactions").exists())
@@ -74,7 +77,8 @@ public class MerchantControllerTest {
 
         mockMvc.perform(get("/api/v1/merchant/transactions")
                 .header("X-Api-Key", "test_key")
-                .header("X-Api-Secret", "test_secret"))
+                .header("X-Api-Secret", "test_secret")
+                .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].amount").exists())
