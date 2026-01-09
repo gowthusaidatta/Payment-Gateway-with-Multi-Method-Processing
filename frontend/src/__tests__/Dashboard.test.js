@@ -5,8 +5,6 @@ import '@testing-library/jest-dom';
 import Dashboard from '../pages/Dashboard';
 import axios from 'axios';
 
-jest.mock('axios');
-
 describe('Dashboard Component', () => {
   const mockStats = {
     total_amount: 5000000,

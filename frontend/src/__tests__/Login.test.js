@@ -4,8 +4,6 @@ import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 import Login from '../pages/Login';
 
-jest.mock('axios');
-
 describe('Login Component', () => {
   beforeEach(() => {
     localStorage.clear();

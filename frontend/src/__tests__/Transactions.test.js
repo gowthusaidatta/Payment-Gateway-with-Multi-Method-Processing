@@ -5,8 +5,6 @@ import '@testing-library/jest-dom';
 import Transactions from '../pages/Transactions';
 import axios from 'axios';
 
-jest.mock('axios');
-
 describe('Transactions Component', () => {
   const mockTransactions = [
     { id: 1, order_id: 'ORD001', amount: 50000, method: 'upi', status: 'success', created_at: '2024-01-01' },
