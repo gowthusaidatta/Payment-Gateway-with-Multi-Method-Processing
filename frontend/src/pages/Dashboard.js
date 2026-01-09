@@ -6,134 +6,189 @@ import './Dashboard.css';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 function Dashboard() {
-  const [merchant, setMerchant] = useState(null);
-  const [stats, setStats] = useState({
-    total_transactions: 0,
-    total_amount: 0,
-    success_rate: 0
-  });
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [stats, setStats] = useState({ total_transactions: 0, total_amount: 0, success_rate: 0 });
+  const [revealSecret, setRevealSecret] = useState(false);
+
+  const apiKey = localStorage.getItem('apiKey');
+  const apiSecret = localStorage.getItem('apiSecret');
+  const merchantEmail = localStorage.getItem('merchantEmail') || 'Merchant';
 
   useEffect(() => {
-    // Check if merchant is logged in
-    const merchantData = localStorage.getItem('merchant');
-    if (!merchantData) {
+    if (!apiKey || !apiSecret) {
       navigate('/login');
       return;
     }
+    const fetchStats = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/v1/merchant/stats`, {
+          headers: {
+            'X-Api-Key': apiKey,
+            'X-Api-Secret': apiSecret
+          }
+        });
+        setStats(response.data);
+        setError(''); // Clear any previous errors
+      } catch (err) {
+        setError('Failed to load stats');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, [apiKey, apiSecret, navigate]);
 
-    const parsedMerchant = JSON.parse(merchantData);
-    setMerchant(parsedMerchant);
-
-    // Fetch stats
-    fetchStats(parsedMerchant);
-  }, [navigate]);
-
-  const fetchStats = async (merchantData) => {
+  const copyToClipboard = async (value) => {
     try {
-      const response = await axios.get(`${API_URL}/api/v1/merchant/stats`, {
-        headers: {
-          'X-Api-Key': merchantData.api_key,
-          'X-Api-Secret': merchantData.api_secret
-        }
-      });
-      setStats(response.data);
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+      }
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      // silent fallback
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('merchant');
-    navigate('/login');
+  const maskSecret = (secret) => {
+    if (!secret) return '';
+    if (revealSecret) return secret;
+    return `${secret.slice(0, 4)}••••${secret.slice(-3)}`;
   };
 
-  const formatAmount = (amount) => {
-    return `₹${(amount / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  if (!merchant) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="app-shell" data-test-id="dashboard">
+        <div className="skeleton shimmer" />
+      </div>
+    );
   }
 
   return (
-    <div className="dashboard-container">
-      <nav className="navbar">
-        <div className="nav-brand">
-          <h1>Payment Gateway</h1>
+    <div className="app-shell" data-test-id="dashboard">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <div className="logo-circle">⚡</div>
+          <div>
+            <p className="brand-mini">Payment Gateway</p>
+            <h3>Merchant</h3>
+          </div>
         </div>
-        <div className="nav-links">
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/dashboard/transactions">Transactions</Link>
-          <button onClick={handleLogout} className="logout-btn">Logout</button>
-        </div>
-      </nav>
+        <nav className="sidebar-nav">
+          <Link to="/dashboard" className="nav-item active">Dashboard</Link>
+          <Link to="/dashboard/transactions" className="nav-item">Transactions</Link>
+          <a className="nav-item" href="#api-creds">API Credentials</a>
+          <a className="nav-item" href="#settings">Settings</a>
+        </nav>
+      </aside>
 
-      <div data-test-id="dashboard" className="dashboard-content">
-        <div className="welcome-section">
-          <h2>Welcome, {merchant.name}</h2>
-          <p className="merchant-email">{merchant.email}</p>
-        </div>
+      <div className="main-area">
+        <header className="topbar">
+          <div>
+            <p className="eyebrow">Overview</p>
+            <h2>Welcome back</h2>
+          </div>
+          <div className="topbar-actions">
+            <div className="badge">{merchantEmail}</div>
+            <button className="icon-btn" aria-label="Notifications">🔔</button>
+            <button className="avatar">{merchantEmail.charAt(0).toUpperCase()}</button>
+          </div>
+        </header>
 
-        <div data-test-id="api-credentials" className="credentials-section">
-          <h3>API Credentials</h3>
-          <div className="credential-item">
-            <label>API Key</label>
-            <div className="credential-value">
-              <span data-test-id="api-key">{merchant.api_key}</span>
-              <button onClick={() => navigator.clipboard.writeText(merchant.api_key)}>
-                Copy
+        <section className="grid-3" data-test-id="stats-container">
+          <div className="stat-card">
+            <div className="stat-top">
+              <p>Transactions</p>
+              <span className="trend up">▲</span>
+            </div>
+            <h3 data-test-id="total-transactions">{stats.total_transactions}</h3>
+            <div className="accent-bar" />
+          </div>
+          <div className="stat-card">
+            <div className="stat-top">
+              <p>Total Volume</p>
+              <span className="trend up">▲</span>
+            </div>
+            <h3 data-test-id="total-amount">₹{(stats.total_amount / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            <div className="accent-bar" />
+          </div>
+          <div className="stat-card">
+            <div className="stat-top">
+              <p>Success Rate</p>
+              <span className="trend">◎</span>
+            </div>
+            <h3 data-test-id="success-rate">{stats.success_rate}%</h3>
+            <div className="accent-bar" />
+          </div>
+        </section>
+
+        <section className="panels">
+          <div className="panel" id="api-creds" data-test-id="api-credentials">
+            <div className="panel-head">
+              <div>
+                <p className="eyebrow">Security</p>
+                <h4>API Credentials</h4>
+              </div>
+              <button className="ghost-btn" onClick={() => setRevealSecret(!revealSecret)}>
+                {revealSecret ? 'Hide secret' : 'Reveal secret'}
               </button>
             </div>
-          </div>
-          <div className="credential-item">
-            <label>API Secret</label>
-            <div className="credential-value">
-              <span data-test-id="api-secret">{merchant.api_secret}</span>
-              <button onClick={() => navigator.clipboard.writeText(merchant.api_secret)}>
-                Copy
-              </button>
+            <div className="credential-row">
+              <div className="label-col">
+                <label>API Key</label>
+                <span className="pill">Public</span>
+              </div>
+              <div className="value-col">
+                <span data-test-id="api-key">{apiKey}</span>
+                <button className="icon-btn" onClick={() => copyToClipboard(apiKey)} aria-label="Copy API Key">📋</button>
+              </div>
+            </div>
+            <div className="credential-row">
+              <div className="label-col">
+                <label>API Secret</label>
+                <span className="pill pill-warn">Secret</span>
+              </div>
+              <div className="value-col">
+                <span data-test-id="api-secret">{maskSecret(apiSecret)}</span>
+                <button className="icon-btn" onClick={() => copyToClipboard(apiSecret)} aria-label="Copy API Secret">📋</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div data-test-id="stats-container" className="stats-section">
-          <h3>Statistics</h3>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-label">Total Transactions</div>
-              <div data-test-id="total-transactions" className="stat-value">
-                {stats.total_transactions}
+          <div className="panel" id="settings">
+            <div className="panel-head">
+              <div>
+                <p className="eyebrow">Shortcuts</p>
+                <h4>Quick actions</h4>
               </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-label">Total Amount</div>
-              <div data-test-id="total-amount" className="stat-value">
-                {formatAmount(stats.total_amount)}
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Success Rate</div>
-              <div data-test-id="success-rate" className="stat-value">
-                {stats.success_rate}%
-              </div>
+            <div className="quick-grid">
+              <Link to="/dashboard/transactions" className="quick-card">
+                <div className="quick-icon">📄</div>
+                <div>
+                  <p className="quick-title">View Transactions</p>
+                  <p className="quick-sub">Monitor live payment activity</p>
+                </div>
+              </Link>
+              <a className="quick-card" href="#api-creds">
+                <div className="quick-icon">🔑</div>
+                <div>
+                  <p className="quick-title">Manage API Keys</p>
+                  <p className="quick-sub">Rotate and secure credentials</p>
+                </div>
+              </a>
+              <a className="quick-card" href="#settings">
+                <div className="quick-icon">⚙️</div>
+                <div>
+                  <p className="quick-title">Settings</p>
+                  <p className="quick-sub">Configure webhooks & risk rules</p>
+                </div>
+              </a>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="quick-actions">
-          <h3>Quick Actions</h3>
-          <div className="actions-grid">
-            <Link to="/dashboard/transactions" className="action-card">
-              <h4>View Transactions</h4>
-              <p>See all payment transactions</p>
-            </Link>
-            <div className="action-card">
-              <h4>API Documentation</h4>
-              <p>Learn how to integrate</p>
-            </div>
-          </div>
-        </div>
+        {error && <div className="error-banner">{error}</div>}
       </div>
     </div>
   );

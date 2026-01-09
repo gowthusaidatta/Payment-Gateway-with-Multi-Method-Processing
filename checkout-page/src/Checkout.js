@@ -171,26 +171,33 @@ function Checkout() {
     <div className="checkout-page">
       <div className="checkout-card" data-test-id="checkout-container">
         <div className="header">
-          <h1>Payment Gateway</h1>
-          <p>Secure Checkout</p>
+          <span>🔒</span>
+          <h1>Secure Checkout</h1>
+          <p data-test-id="header-subtitle"></p>
         </div>
 
         {/* Order Summary */}
         <div data-test-id="order-summary" className="order-summary">
-          <h2>Complete Payment</h2>
-          <div className="order-details">
-            <div className="order-row">
-              <span>Amount:</span>
-              <span data-test-id="order-amount" className="amount">
-                {formatAmount(order.amount)}
-              </span>
+          <div>
+            <h2>Order Summary</h2>
+            <div className="order-details">
+              <div className="order-row">
+                <span>Amount to Pay</span>
+                <span data-test-id="order-amount" className="amount">
+                  {formatAmount(order.amount)}
+                </span>
+              </div>
+              <div className="order-row">
+                <span>Order ID</span>
+                <span data-test-id="order-id" className="order-id">
+                  {order.id}
+                </span>
+              </div>
             </div>
-            <div className="order-row">
-              <span>Order ID:</span>
-              <span data-test-id="order-id" className="order-id">
-                {order.id}
-              </span>
-            </div>
+          </div>
+          <div className="secure-badge">
+            <span>✓</span>
+            <span>Secure Payment</span>
           </div>
         </div>
 
@@ -352,11 +359,6 @@ function Checkout() {
             )}
           </>
         )}
-
-        <div className="secure-badge">
-          <span>🔒</span>
-          <span>Secure Payment</span>
-        </div>
       </div>
     </div>
   );

@@ -5,77 +5,88 @@ import './Login.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-function Login() {
+function Login({ setIsAuthenticated }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
       const response = await axios.post(`${API_URL}/api/v1/merchant/login`, {
-        email: email
+        email,
+        password
       });
 
-      // Store merchant data in localStorage
-      localStorage.setItem('merchant', JSON.stringify(response.data));
-      
-      // Navigate to dashboard
-      navigate('/dashboard');
+      if (response.data && response.data.api_key && response.data.api_secret) {
+        localStorage.setItem('apiKey', response.data.api_key);
+        localStorage.setItem('apiSecret', response.data.api_secret);
+        localStorage.setItem('merchantEmail', response.data.email || email);
+        setIsAuthenticated(true);
+        navigate('/dashboard');
+      } else {
+        setError('Invalid login response');
+      }
     } catch (err) {
-      setError('Invalid credentials');
-      console.error('Login error:', err);
+      setError(err.response?.data?.error?.description || 'Invalid credentials');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h1>Payment Gateway</h1>
-        <h2>Merchant Login</h2>
-        
-        <form data-test-id="login-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
+    <div className="auth-shell">
+      <div className="auth-bg" aria-hidden="true" />
+      <div className="auth-card">
+        <div className="brand-header">
+          <div className="brand-icon">⚡</div>
+          <div>
+            <p className="brand-kicker">Payment Gateway</p>
+            <h1>Merchant Console</h1>
+          </div>
+        </div>
+
+        <div className="card-headline">
+          <h2>Merchant Login</h2>
+          <p>Securely access your payments workspace</p>
+        </div>
+
+        <form data-test-id="login-form" onSubmit={handleLogin} className="login-form">
+          <label className="input-group">
+            <span className="input-icon">@</span>
             <input
               data-test-id="email-input"
-              id="email"
               type="email"
-              placeholder="Email"
+              placeholder="you@business.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-          </div>
+          </label>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
+          <label className="input-group">
+            <span className="input-icon">••</span>
             <input
               data-test-id="password-input"
-              id="password"
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </div>
+          </label>
 
           {error && <div className="error-message">{error}</div>}
 
-          <button data-test-id="login-button" type="submit">
-            Login
+          <button className="primary-btn" data-test-id="login-button" disabled={loading}>
+            {loading ? <span className="spinner" aria-label="Loading" /> : 'Login'}
           </button>
         </form>
-
-        <div className="test-credentials">
-          <p><strong>Test Credentials:</strong></p>
-          <p>Email: test@example.com</p>
-          <p>Password: (any password)</p>
-        </div>
       </div>
     </div>
   );

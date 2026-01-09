@@ -1,12 +1,18 @@
-FROM node:18-alpine
+# Multi-stage build for Spring Boot
+FROM maven:3.9-eclipse-temurin-17 AS builder
+
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install --production
-
-COPY . .
+COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8000
 
-CMD ["node", "src/server.js"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

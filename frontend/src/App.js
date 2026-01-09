@@ -1,17 +1,27 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
+import './App.css';
 
 function App() {
+  const hasCreds = () => !!(localStorage.getItem('apiKey') && localStorage.getItem('apiSecret'));
+  const [isAuthenticated, setIsAuthenticated] = useState(hasCreds());
+  
+  useEffect(() => {
+    const checkAuth = () => setIsAuthenticated(hasCreds());
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
+  
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/transactions" element={<Transactions />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+        <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Login setIsAuthenticated={setIsAuthenticated} />} />
+        <Route path="/dashboard/transactions" element={isAuthenticated ? <Transactions /> : <Login setIsAuthenticated={setIsAuthenticated} />} />
+        <Route path="/" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
       </Routes>
     </Router>
   );
