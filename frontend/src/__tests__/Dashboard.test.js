@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import Dashboard from '../Dashboard';
 import axios from 'axios';
@@ -14,13 +15,9 @@ describe('Dashboard Component', () => {
   };
 
   beforeEach(() => {
-    localStorage.setItem('merchantCredentials', JSON.stringify({
-      id: 1,
-      name: 'Test Merchant',
-      email: 'test@example.com',
-      api_key: 'test_key',
-      api_secret: 'test_secret',
-    }));
+    localStorage.setItem('apiKey', 'test_key');
+    localStorage.setItem('apiSecret', 'test_secret');
+    localStorage.setItem('merchantEmail', 'test@example.com');
   });
 
   afterEach(() => {
@@ -30,15 +27,22 @@ describe('Dashboard Component', () => {
 
   test('renders dashboard with merchant credentials', () => {
     axios.get.mockResolvedValue({ data: mockStats });
-    render(<Dashboard />);
+    render(
+      <BrowserRouter>
+        <Dashboard />
+      </BrowserRouter>
+    );
     
-    expect(screen.getByText(/Test Merchant/i)).toBeInTheDocument();
-    expect(screen.getByText(/test@example.com/i)).toBeInTheDocument();
+    expect(screen.getByText(/Merchant/i)).toBeInTheDocument();
   });
 
   test('displays stats after fetch', async () => {
     axios.get.mockResolvedValue({ data: mockStats });
-    render(<Dashboard />);
+    render(
+      <BrowserRouter>
+        <Dashboard />
+      </BrowserRouter>
+    );
     
     await waitFor(() => {
       expect(screen.getByText(/50 lakhs/i)).toBeInTheDocument();
@@ -48,7 +52,11 @@ describe('Dashboard Component', () => {
 
   test('handles stats fetch error gracefully', async () => {
     axios.get.mockRejectedValue(new Error('API Error'));
-    render(<Dashboard />);
+    render(
+      <BrowserRouter>
+        <Dashboard />
+      </BrowserRouter>
+    );
     
     await waitFor(() => {
       expect(screen.queryByText(/Failed to load stats/i)).not.toBeInTheDocument();

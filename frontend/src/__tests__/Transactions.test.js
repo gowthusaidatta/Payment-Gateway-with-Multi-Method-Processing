@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
-import Transactions from '../Transactions';
+import Transactions from '../pages/Transactions';
 import axios from 'axios';
 
 jest.mock('axios');
@@ -13,10 +14,8 @@ describe('Transactions Component', () => {
   ];
 
   beforeEach(() => {
-    localStorage.setItem('merchantCredentials', JSON.stringify({
-      api_key: 'test_key',
-      api_secret: 'test_secret',
-    }));
+    localStorage.setItem('apiKey', 'test_key');
+    localStorage.setItem('apiSecret', 'test_secret');
   });
 
   afterEach(() => {
@@ -26,7 +25,11 @@ describe('Transactions Component', () => {
 
   test('renders transactions table', async () => {
     axios.get.mockResolvedValue({ data: mockTransactions });
-    render(<Transactions />);
+    render(
+      <BrowserRouter>
+        <Transactions />
+      </BrowserRouter>
+    );
     
     await waitFor(() => {
       expect(screen.getByText(/ORD001/i)).toBeInTheDocument();
@@ -36,7 +39,11 @@ describe('Transactions Component', () => {
 
   test('displays create transaction form', () => {
     axios.get.mockResolvedValue({ data: [] });
-    render(<Transactions />);
+    render(
+      <BrowserRouter>
+        <Transactions />
+      </BrowserRouter>
+    );
     
     expect(screen.getByLabelText(/order id/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
@@ -47,7 +54,11 @@ describe('Transactions Component', () => {
     axios.get.mockResolvedValue({ data: [] });
     axios.post.mockResolvedValue({ data: { id: 3, status: 'success' } });
     
-    render(<Transactions />);
+    render(
+      <BrowserRouter>
+        <Transactions />
+      </BrowserRouter>
+    );
     
     const orderInput = screen.getByLabelText(/order id/i);
     const amountInput = screen.getByLabelText(/amount/i);

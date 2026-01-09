@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
-import Login from './Login';
+import Login from '../pages/Login';
 
 jest.mock('axios');
 
@@ -12,7 +13,11 @@ describe('Login Component', () => {
   });
 
   test('renders login form', () => {
-    render(<Login setIsAuthenticated={() => {}} />);
+    render(
+      <BrowserRouter>
+        <Login setIsAuthenticated={() => {}} />
+      </BrowserRouter>
+    );
     expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
@@ -22,7 +27,11 @@ describe('Login Component', () => {
     const user = userEvent.setup();
     axios.post.mockRejectedValueOnce(new Error('Invalid credentials'));
 
-    render(<Login setIsAuthenticated={() => {}} />);
+    render(
+      <BrowserRouter>
+        <Login setIsAuthenticated={() => {}} />
+      </BrowserRouter>
+    );
     
     const emailInput = screen.getByPlaceholderText(/email/i);
     const passwordInput = screen.getByPlaceholderText(/password/i);
@@ -48,9 +57,12 @@ describe('Login Component', () => {
     axios.post.mockResolvedValueOnce({ data: mockCredentials });
 
     const mockSetAuth = jest.fn();
-    const mockNavigate = jest.fn();
     
-    render(<Login setIsAuthenticated={mockSetAuth} />);
+    render(
+      <BrowserRouter>
+        <Login setIsAuthenticated={mockSetAuth} />
+      </BrowserRouter>
+    );
 
     const emailInput = screen.getByPlaceholderText(/email/i);
     const passwordInput = screen.getByPlaceholderText(/password/i);
@@ -68,7 +80,11 @@ describe('Login Component', () => {
 
   test('validates email format', async () => {
     const user = userEvent.setup();
-    render(<Login setIsAuthenticated={() => {}} />);
+    render(
+      <BrowserRouter>
+        <Login setIsAuthenticated={() => {}} />
+      </BrowserRouter>
+    );
 
     const emailInput = screen.getByPlaceholderText(/email/i);
     const loginButton = screen.getByRole('button', { name: /login/i });
