@@ -1,6 +1,6 @@
 package com.paymentgateway.controller;
 
-import com.paymentgateway.model.Merchant;
+import com.paymentgateway.entity.Merchant;
 import com.paymentgateway.repository.MerchantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -34,8 +35,7 @@ public class MerchantControllerTest {
     @BeforeEach
     public void setup() {
         testMerchant = new Merchant();
-        testMerchant.setId(1L);
-        testMerchant.setName("Test Merchant");
+        testMerchant.setId(UUID.randomUUID());
         testMerchant.setEmail("test@example.com");
         testMerchant.setApiKey("test_key");
         testMerchant.setApiSecret("test_secret");
@@ -43,19 +43,20 @@ public class MerchantControllerTest {
 
     @Test
     public void testMerchantLogin() throws Exception {
-        when(merchantRepository.findByApiKey(anyString())).thenReturn(Optional.of(testMerchant));
+        when(merchantRepository.findByApiKeyAndApiSecret("test_key", "test_secret"))
+                .thenReturn(Optional.of(testMerchant));
 
         mockMvc.perform(post("/api/v1/merchant/login")
                 .header("X-Api-Key", "test_key")
                 .header("X-Api-Secret", "test_secret"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("test@example.com"));
     }
 
     @Test
     public void testGetMerchantStats() throws Exception {
-        when(merchantRepository.findByApiKey(anyString())).thenReturn(Optional.of(testMerchant));
+        when(merchantRepository.findByApiKeyAndApiSecret("test_key", "test_secret"))
+                .thenReturn(Optional.of(testMerchant));
 
         mockMvc.perform(get("/api/v1/merchant/stats")
                 .header("X-Api-Key", "test_key")
@@ -68,7 +69,8 @@ public class MerchantControllerTest {
 
     @Test
     public void testGetMerchantTransactions() throws Exception {
-        when(merchantRepository.findByApiKey(anyString())).thenReturn(Optional.of(testMerchant));
+        when(merchantRepository.findByApiKeyAndApiSecret("test_key", "test_secret"))
+                .thenReturn(Optional.of(testMerchant));
 
         mockMvc.perform(get("/api/v1/merchant/transactions")
                 .header("X-Api-Key", "test_key")
