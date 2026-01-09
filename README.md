@@ -28,7 +28,7 @@ This project consists of four main services:
 
 1. Clone the repository:
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/gowthusaidatta/Payment-Gateway-with-Multi-Method-Processing
 cd "Payment Gateway with Multi-Method Processing"
 ```
 
@@ -74,7 +74,7 @@ The system automatically seeds a test merchant on startup:
 - **Email**: test@example.com
 - **API Key**: key_test_abc123
 - **API Secret**: secret_test_xyz789
-- **Password**: (any password works for dashboard login)
+- **Dashboard Password**: test@123 (for dashboard login)
 
 ## 📚 API Documentation
 
@@ -261,7 +261,7 @@ http://localhost:3001/checkout?order_id=<order_id_from_step_1>
 
 Access the dashboard at http://localhost:3000
 
-1. **Login Page** - Enter test@example.com (any password)
+1. **Login Page** - Enter test@example.com with password test@123
 2. **Dashboard Home** - View API credentials and statistics
 3. **Transactions** - View all payment transactions with status
 
