@@ -23,6 +23,12 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = request.getRequestURI();
 
+        // Allow CORS preflight without auth
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return true;
+        }
+
         // Explicitly allow merchant login to remain public
         if (path.equals("/api/v1/merchant/login") || path.startsWith("/api/v1/merchant/login/")) {
             return true;
