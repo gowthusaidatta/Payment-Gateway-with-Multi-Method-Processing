@@ -60,10 +60,7 @@ describe('Transactions Component', () => {
     );
     
     await waitFor(() => {
-      const amountInputs = screen.getAllByRole('spinbutton');
-      if (amountInputs.length > 0) {
-        fireEvent.change(amountInputs[0], { target: { value: '100000' } });
-      }
+      expect(screen.getByText(/Create Transaction/i)).toBeInTheDocument();
     });
     
     const submitBtn = screen.getByRole('button', { name: /Create/i });

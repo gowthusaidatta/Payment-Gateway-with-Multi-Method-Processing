@@ -58,9 +58,9 @@ describe('Dashboard Component', () => {
       </BrowserRouter>
     );
     
-    // Component should still render even if API fails
+    // Component should still render the error message on API failure
     await waitFor(() => {
-      expect(screen.queryByTestId('dashboard')).toBeInTheDocument();
+      expect(screen.queryByText(/Failed to load stats/i)).toBeInTheDocument();
     });
   });
 });
