@@ -33,6 +33,7 @@ describe('Dashboard Component', () => {
     
     await waitFor(() => {
       expect(screen.getByText(/Welcome back/i)).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard')).toBeInTheDocument();
     });
   });
 
@@ -45,8 +46,11 @@ describe('Dashboard Component', () => {
     );
     
     await waitFor(() => {
-      expect(screen.getByTestId('total-transactions')).toHaveTextContent('2843');
-      expect(screen.getByTestId('success-rate')).toHaveTextContent('96.8');
+      // Check that stats are rendered
+      expect(screen.getByTestId('stats-container')).toBeInTheDocument();
+      // Verify the numeric values are displayed
+      expect(screen.getByText('2843')).toBeInTheDocument();
+      expect(screen.getByText('96.8%')).toBeInTheDocument();
     });
   });
 
