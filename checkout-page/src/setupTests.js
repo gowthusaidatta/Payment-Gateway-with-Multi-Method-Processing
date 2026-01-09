@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom';
-import axios from 'axios';
 
-// Mock axios globally
+// Axios is mocked via __mocks__/axios.js
 jest.mock('axios');
