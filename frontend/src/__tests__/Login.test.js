@@ -18,9 +18,9 @@ describe('Login Component', () => {
         <Login setIsAuthenticated={() => {}} />
       </BrowserRouter>
     );
-    expect(screen.getByTestId('email-input')).toBeInTheDocument();
-    expect(screen.getByTestId('password-input')).toBeInTheDocument();
-    expect(screen.getByTestId('login-button')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('you@business.com')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
   });
 
   test('displays error on failed login', async () => {
@@ -33,9 +33,9 @@ describe('Login Component', () => {
       </BrowserRouter>
     );
     
-    const emailInput = screen.getByTestId('email-input');
-    const passwordInput = screen.getByTestId('password-input');
-    const loginButton = screen.getByTestId('login-button');
+    const emailInput = screen.getByPlaceholderText('you@business.com');
+    const passwordInput = screen.getByPlaceholderText('Password');
+    const loginButton = screen.getByRole('button', { name: /Login/i });
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'wrongpassword');
@@ -64,9 +64,9 @@ describe('Login Component', () => {
       </BrowserRouter>
     );
 
-    const emailInput = screen.getByTestId('email-input');
-    const passwordInput = screen.getByTestId('password-input');
-    const loginButton = screen.getByTestId('login-button');
+    const emailInput = screen.getByPlaceholderText('you@business.com');
+    const passwordInput = screen.getByPlaceholderText('Password');
+    const loginButton = screen.getByRole('button', { name: /Login/i });
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'test@123');
@@ -85,7 +85,7 @@ describe('Login Component', () => {
       </BrowserRouter>
     );
 
-    const emailInput = screen.getByTestId('email-input');
+    const emailInput = screen.getByPlaceholderText('you@business.com');
 
     await user.type(emailInput, 'invalidemail');
 

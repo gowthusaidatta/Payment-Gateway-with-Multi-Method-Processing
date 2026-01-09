@@ -65,6 +65,11 @@ describe('Transactions Component', () => {
       expect(screen.getByText(/Create Transaction/i)).toBeInTheDocument();
     });
     
+    // Find and fill the amount input (number input for amount)
+    const amountInputs = screen.getAllByRole('spinbutton');
+    fireEvent.change(amountInputs[0], { target: { value: '100000' } });
+    
+    // Submit the form
     const submitBtn = screen.getByRole('button', { name: /Create/i });
     fireEvent.click(submitBtn);
     
