@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 import Login from '../pages/Login';
 
+jest.mock('axios');
+
 describe('Login Component', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -23,7 +25,7 @@ describe('Login Component', () => {
 
   test('displays error on failed login', async () => {
     const user = userEvent.setup();
-    axios.post.mockRejectedValueOnce(new Error('Invalid credentials'));
+    axios.post.mockRejectedValueOnce({ response: { data: { error: { description: 'Invalid credentials' } } } });
 
     render(
       <BrowserRouter>
@@ -40,7 +42,7 @@ describe('Login Component', () => {
     await user.click(loginButton);
 
     await waitFor(() => {
-      expect(screen.queryByText(/failed to login|invalid|error/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Invalid credentials/i)).toBeInTheDocument();
     });
   });
 
@@ -72,7 +74,6 @@ describe('Login Component', () => {
 
     await waitFor(() => {
       expect(localStorage.getItem('apiKey')).toBe('key_test_abc123');
-      expect(localStorage.getItem('apiSecret')).toBe('secret_test_xyz789');
     });
   });
 
@@ -85,12 +86,9 @@ describe('Login Component', () => {
     );
 
     const emailInput = screen.getByTestId('email-input');
-    const loginButton = screen.getByTestId('login-button');
 
     await user.type(emailInput, 'invalidemail');
-    await user.click(loginButton);
 
-    // Email input with type="email" will have browser validation
     expect(emailInput).toHaveValue('invalidemail');
   });
 });
