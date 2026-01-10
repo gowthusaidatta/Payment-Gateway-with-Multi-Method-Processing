@@ -1,0 +1,196 @@
+{
+  "info": {
+    "name": "Payment Gateway API",
+    "_postman_id": "7a6b34fe-0f8d-4f37-9fd2-9f5a61c0c2c3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection to test merchant login, order creation, and order retrieval endpoints."
+  },
+  "item": [
+    {
+      "name": "Merchant: Get Test Merchant",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/test/merchant",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "test",
+            "merchant"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.environment.set('apiKey', json.api_key);",
+              "pm.environment.set('apiSecret', json.api_secret);",
+              "pm.test('Credentials captured', function () {",
+              "  pm.expect(pm.environment.get('apiKey')).to.exist;",
+              "  pm.expect(pm.environment.get('apiSecret')).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Merchant: Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"any\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/merchant/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "merchant",
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.environment.set('apiKey', json.api_key);",
+              "pm.environment.set('apiSecret', json.api_secret);",
+              "pm.test('Credentials captured from login', function () {",
+              "  pm.expect(pm.environment.get('apiKey')).to.exist;",
+              "  pm.expect(pm.environment.get('apiSecret')).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders: Create Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Api-Secret",
+            "value": "{{apiSecret}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 1000,\n  \"currency\": \"INR\",\n  \"receipt\": \"ORD-12345\",\n  \"notes\": {\n    \"customer\": \"John Doe\",\n    \"purpose\": \"Test\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/orders",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "orders"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.environment.set('orderId', json.id);",
+              "pm.test('Order created', function () {",
+              "  pm.expect(json.id).to.exist;",
+              "  pm.expect(json.amount).to.eql(1000);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders: Get Order (merchant)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Api-Key",
+            "value": "{{apiKey}}"
+          },
+          {
+            "key": "X-Api-Secret",
+            "value": "{{apiSecret}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/orders/{{orderId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "orders",
+            "{{orderId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Orders: Get Order Public",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/orders/{{orderId}}/public",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "orders",
+            "{{orderId}}",
+            "public"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    }
+  ]
+}
