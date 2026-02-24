@@ -39,6 +39,14 @@ docker-compose up -d
 - API Key: key_test_abc123
 - API Secret: secret_test_xyz789
 
+## Live Demo
+You can try the live demo here:
+**Live Demo URL:** https://your-demo-url.example.com
+
+## Video Demo
+A video demonstration of the project is available here:
+**Video Demo URL:** https://www.youtube.com/watch?v=your-demo-video
+
 ## Common Commands
 - Stop & clean: `docker-compose down -v --remove-orphans`
 - Rebuild fresh: `docker-compose build --no-cache && docker-compose up -d`
